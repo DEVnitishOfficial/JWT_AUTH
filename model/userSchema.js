@@ -1,6 +1,7 @@
 
 const mongoose = require ('mongoose');
 const {Schema} = mongoose;
+const JWT = require('jsonwebtoken')
 
 const userSchema = new Schema({
 
@@ -16,11 +17,15 @@ const userSchema = new Schema({
         required:[true,'user email is required'],
         unique:true,
         lowercase:true,
-        unique:[ture,'already registered']
+        unique:[true,'already registered']
 
     },
     password:{
         type:String,
+    },
+    confirmPassword:{
+     type:String,
+     required:true
     },
     forgetPasswordToken:{
         type:String,
@@ -29,6 +34,16 @@ const userSchema = new Schema({
 
     }
 });
+
+userSchema.methods = {
+    jwtToken(){
+        return JWT.sign(
+            {id: this._id, email: this.email},
+            process.env.SECRET,
+            {expiresIn:'24H'}
+        )
+    }
+}
 
 const userModel = mongoose.model('user',userSchema);
 module.exports = userModel;
